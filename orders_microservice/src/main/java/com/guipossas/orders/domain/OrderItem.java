@@ -23,6 +23,8 @@ public class OrderItem
 
     private BigDecimal price;
 
+    private Integer quantity;
+
     @Field(name = "image_url")
     private String imageUrl;
 

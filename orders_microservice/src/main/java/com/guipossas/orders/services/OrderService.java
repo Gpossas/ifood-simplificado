@@ -5,6 +5,7 @@ import com.guipossas.orders.domain.OrderItem;
 import com.guipossas.orders.enums.OrderStatus;
 import com.guipossas.orders.enums.PaymentStatus;
 import com.guipossas.orders.exceptions.OrderNotFound;
+import com.guipossas.orders.exceptions.OrderWithEmptyItems;
 import com.guipossas.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,14 @@ public class OrderService
     private final OrderItemService orderItemService;
     private final OrderRepository orderRepository;
 
-    public Order save(Order order)
+    public Order save(Order order, List<String> orderItemIds)
     {
-        List<OrderItem> orderItems = orderItemService.findAll();
+        List<OrderItem> orderItems = orderItemService.findAllIds(orderItemIds);
+
+        if (orderItems.isEmpty())
+        {
+            throw new OrderWithEmptyItems();
+        }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (OrderItem orderItem : orderItems)

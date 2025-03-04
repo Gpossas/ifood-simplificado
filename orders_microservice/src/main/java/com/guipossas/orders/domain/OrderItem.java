@@ -22,6 +22,8 @@ public class OrderItem
     @Id
     private String id;
 
+    private String orderItemCode;
+
     private String name;
 
     private BigDecimal price;

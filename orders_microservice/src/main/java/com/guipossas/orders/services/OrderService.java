@@ -2,6 +2,9 @@ package com.guipossas.orders.services;
 
 import com.guipossas.orders.domain.Order;
 import com.guipossas.orders.domain.OrderItem;
+import com.guipossas.orders.enums.OrderStatus;
+import com.guipossas.orders.enums.PaymentStatus;
+import com.guipossas.orders.exceptions.OrderNotFound;
 import com.guipossas.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,5 +33,15 @@ public class OrderService
         order.setItems(orderItems);
 
         return orderRepository.save(order);
+    }
+
+    public Order findById(String id)
+    {
+        return orderRepository.findById(id).orElseThrow(() -> new OrderNotFound(id));
+    }
+
+    public List<Order> findAll()
+    {
+        return orderRepository.findAll();
     }
 }

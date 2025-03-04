@@ -33,4 +33,10 @@ public class OrderItemController
     {
         return orderItemService.findAll();
     }
+
+    @DeleteMapping(value = "/{id}")
+    public void deleteById(@PathVariable String id)
+    {
+        orderItemService.deleteById(id);
+    }
 }

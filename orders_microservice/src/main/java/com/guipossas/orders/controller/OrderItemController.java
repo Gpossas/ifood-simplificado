@@ -5,10 +5,9 @@ import com.guipossas.orders.dto.OrderItemRequestDto;
 import com.guipossas.orders.services.OrderItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/order-items", produces = "application/json")
@@ -21,5 +20,17 @@ public class OrderItemController
     public OrderItem save(@RequestBody @Valid OrderItemRequestDto orderItemRequestDto)
     {
         return orderItemService.save(new OrderItem(orderItemRequestDto));
+    }
+
+    @GetMapping(value = "/{id}")
+    public OrderItem findById(@PathVariable String id)
+    {
+        return orderItemService.findById(id);
+    }
+
+    @GetMapping
+    public List<OrderItem> findAll()
+    {
+        return orderItemService.findAll();
     }
 }

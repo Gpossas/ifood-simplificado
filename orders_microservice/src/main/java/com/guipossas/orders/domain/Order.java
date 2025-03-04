@@ -6,7 +6,7 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,5 +23,5 @@ public class Order
     private List<OrderItem> items = new ArrayList<>();
     private OrderStatus status = OrderStatus.WAITING_CONFIRMATION;
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
-    private final OffsetDateTime createdAt = OffsetDateTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
 }

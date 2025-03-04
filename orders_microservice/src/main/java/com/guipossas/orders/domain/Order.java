@@ -19,6 +19,7 @@ import java.util.List;
 public class Order
 {
     private String id;
+    private String orderNumber;
     private BigDecimal total;
     private List<OrderItem> items = new ArrayList<>();
     private OrderStatus status = OrderStatus.WAITING_CONFIRMATION;

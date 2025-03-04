@@ -7,11 +7,15 @@ import com.guipossas.orders.enums.OrderStatus;
 import com.guipossas.orders.services.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/orders", produces = "application/json")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController
 {
     private final OrderService orderService;
@@ -19,7 +23,15 @@ public class OrderController
     @PostMapping(consumes = "application/json")
     public Order save(@Valid @RequestBody OrderRequestDto orderRequest)
     {
-        return orderService.save(new Order(), orderRequest.itemsIds());
+        UUID orderNumber = UUID.randomUUID();
+
+        log.info("Started processing order {}", orderNumber);
+
+        Order order = orderService.save(new Order(), orderRequest.itemsIds(), orderNumber);
+
+        log.info("Finished processing order {}", orderNumber);
+
+        return order;
     }
 
     @PatchMapping(value = "/{id}/order_status", consumes = "application/json")

@@ -33,4 +33,9 @@ public class OrderItemService
     {
         return orderItemRepository.findAll();
     }
+
+    public List<OrderItem> findAllIds(List<String> ids)
+    {
+        return orderItemRepository.findAllIds(ids);
+    }
 }

@@ -1,12 +1,14 @@
 package com.guipossas.orders.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.guipossas.orders.dto.OrderItemRequestDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Document(collection = "order_items")
 @Data
@@ -14,6 +16,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderItem
 {
     @Id
@@ -31,5 +34,14 @@ public class OrderItem
     private String description;
 
     @Field(name = "created_at")
-    private final OffsetDateTime createdAt = OffsetDateTime.now();
+    private final LocalDateTime createdAt = LocalDateTime.now();
+
+    public OrderItem(OrderItemRequestDto orderItemRequestDto)
+    {
+        this.name = orderItemRequestDto.name();
+        this.price = orderItemRequestDto.price();
+        this.quantity = orderItemRequestDto.quantity();
+        this.imageUrl = orderItemRequestDto.imageUrl();
+        this.description = orderItemRequestDto.description();
+    }
 }

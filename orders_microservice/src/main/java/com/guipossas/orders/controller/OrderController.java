@@ -22,7 +22,7 @@ public class OrderController
         return orderService.save(new Order(), orderRequest.itemsIds());
     }
 
-    @PatchMapping(value = "/{id}/order_status")
+    @PatchMapping(value = "/{id}/order_status", consumes = "application/json")
     public void updateOrderStatus(@PathVariable String id, @Valid @RequestBody UpdateOrderStatusDto status)
     {
         orderService.updateOrderStatus(id, OrderStatus.valueOf(status.orderStatus()));

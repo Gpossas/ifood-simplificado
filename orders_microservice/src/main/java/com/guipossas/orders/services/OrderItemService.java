@@ -3,6 +3,7 @@ package com.guipossas.orders.services;
 import com.guipossas.orders.domain.OrderItem;
 import com.guipossas.orders.exceptions.OrderItemNotFound;
 import com.guipossas.orders.repository.OrderItemRepository;
+import com.guipossas.orders.validation.OrderItemValidationChain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,12 @@ import java.util.List;
 public class OrderItemService
 {
     private final OrderItemRepository orderItemRepository;
+    private final OrderItemValidationChain orderItemValidationChain;
 
     public OrderItem save(OrderItem orderItem)
     {
+        orderItemValidationChain.validate(orderItem);
+
         return orderItemRepository.save(orderItem);
     }
 

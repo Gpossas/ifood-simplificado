@@ -1,8 +1,6 @@
 package com.guipossas.orders.infra;
 
-import com.guipossas.orders.exceptions.OrderItemNotFound;
-import com.guipossas.orders.exceptions.OrderNotFound;
-import com.guipossas.orders.exceptions.OrderWithEmptyItems;
+import com.guipossas.orders.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -55,6 +53,22 @@ public class GlobalExceptionHandler
     {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
         problemDetail.setTitle("Pedido não possui itens");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(PriceNotPositive.class)
+    public ProblemDetail handlePriceNotPositiveException(PriceNotPositive exception)
+    {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problemDetail.setTitle("Preço deve ser maior que zero");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(QuantityNotPositive.class)
+    public ProblemDetail handleQuantityNotPositiveException(QuantityNotPositive exception)
+    {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, exception.getMessage());
+        problemDetail.setTitle("Quantidade deve ser maior que zero");
         return problemDetail;
     }
 }

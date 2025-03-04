@@ -44,4 +44,18 @@ public class OrderService
     {
         return orderRepository.findAll();
     }
+
+    public void updatePaymentStatus(String id, PaymentStatus status)
+    {
+        Order order = findById(id);
+        order.setPaymentStatus(status);
+        orderRepository.save(order);
+    }
+
+    public void updateOrderStatus(String id, OrderStatus status)
+    {
+        Order order = findById(id);
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
 }

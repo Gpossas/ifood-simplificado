@@ -4,11 +4,13 @@ import com.guipossas.orders.domain.Order;
 import com.guipossas.orders.domain.OrderItem;
 import com.guipossas.orders.enums.OrderStatus;
 import com.guipossas.orders.enums.PaymentStatus;
+import com.guipossas.orders.events.OrderPlacedEvent;
 import com.guipossas.orders.exceptions.OrderNotFound;
 import com.guipossas.orders.exceptions.OrderWithEmptyItems;
 import com.guipossas.orders.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,6 +24,7 @@ public class OrderService
 {
     private final OrderItemService orderItemService;
     private final OrderRepository orderRepository;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public Order save(Order order, List<String> orderItemIds, UUID orderNumber)
     {
@@ -46,8 +49,10 @@ public class OrderService
         order.setOrderNumber(orderNumber.toString());
 
         Order savedOrder = orderRepository.save(order);
-
         log.info("Saved order to database {}", orderNumber);
+
+        applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, savedOrder));
+        log.info("Published order placed event {}", orderNumber);
 
         return savedOrder;
     }

@@ -24,7 +24,7 @@ public class OrderService
 {
     private final OrderItemService orderItemService;
     private final OrderRepository orderRepository;
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public Order save(Order order, List<String> orderItemIds, UUID orderNumber)
     {

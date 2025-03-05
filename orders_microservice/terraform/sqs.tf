@@ -1,10 +1,10 @@
 resource "aws_sqs_queue" "orders-placed-queue" {
-  name = var.orders_placed_queue_name
+  name       = var.orders_placed_queue_name
   fifo_queue = true
 
   content_based_deduplication = false
-  deduplication_scope = "messageGroup"
-  fifo_throughput_limit = "perMessageGroupId"
+  deduplication_scope         = "messageGroup"
+  fifo_throughput_limit       = "perMessageGroupId"
 
   sqs_managed_sse_enabled = true
 
@@ -18,10 +18,10 @@ resource "aws_sqs_queue" "orders-placed-queue" {
 // todo: add a permission to ecs-restaurant-ms as principal to consume message to the queue
 data "aws_iam_policy_document" "sqs_policy" {
   statement {
-    actions = ["sqs:SendMessage"]
+    actions   = ["sqs:SendMessage"]
     resources = [aws_sqs_queue.orders-placed-queue.arn]
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = [var.account_id]
     }
   }

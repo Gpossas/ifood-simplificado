@@ -21,16 +21,16 @@ resource "aws_iam_role_policy_attachment" "task_execution_role_policy" {
 resource "aws_iam_role" "ecs_task_role" {
   name               = "${var.project_tags.project}-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_trusted_entities_policy.json
-  description = "Allows ECS tasks to call AWS services on your behalf."
-  tags = var.project_tags.project
+  description        = "Allows ECS tasks to call AWS services on your behalf."
+  tags               = var.project_tags.project
 }
 resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.sqs_send_message_policy.arn
 }
 resource "aws_iam_policy" "sqs_send_message_policy" {
-  name   = "${var.project_tags.project}-sqs-send-message-policy"
-  policy = data.aws_iam_policy_document.sqs_send_message_policy.json
+  name        = "${var.project_tags.project}-sqs-send-message-policy"
+  policy      = data.aws_iam_policy_document.sqs_send_message_policy.json
   description = "Allows to send messages to SQS"
 }
 data "aws_iam_policy_document" "sqs_send_message_policy" {

@@ -4,6 +4,12 @@ variable "database_name" {
   default     = "ifood-simplificado-db"
 }
 
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "sa-east-1"
+}
+
 variable "orders_placed_queue_name" {
   description = "Name of the queue for orders placed"
   type        = string
@@ -65,4 +71,55 @@ variable "vpc_public_subnets" {
   description = "Public subnets of the VPC"
   type        = set(string)
   default     = ["10.0.1.32/28", "10.0.1.48/28"]
+}
+
+variable "task_definition_cpu" {
+  description = "CPU of the task definition"
+  type        = number
+  default     = 0.5
+}
+
+variable "task_definition_memory" {
+  description = "Memory of the task definition"
+  type        = number
+  default     = 1024
+}
+
+variable "task_definition_microservice_image" {
+  description = "Image of the task definition microservice"
+  type        = string
+  nullable    = false
+}
+
+variable "microservice_name" {
+  description = "Microservice name"
+  type        = string
+  default     = "orders microservice"
+}
+
+variable "service_name" {
+  description = "Service name"
+  type        = string
+  default     = "orders service"
+}
+
+variable "security_group_all_traffic" {
+  description = "Security group for all traffic"
+  type        = string
+  default     = -1
+}
+
+variable "security_group_anywhere" {
+  description = "Security group for all traffic"
+  type        = string
+  default     = "0.0.0.0/0"
+}
+
+variable "security_group_ports" {
+  description = "Security group for HTTP traffic"
+  type        = map(number)
+  default = {
+    http  = 80
+    https = 443
+  }
 }

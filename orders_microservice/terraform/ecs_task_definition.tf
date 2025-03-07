@@ -1,5 +1,5 @@
 resource "aws_ecs_task_definition" "ecs_task_definition" {
-  family                   = "${var.project_tags.project}-task-family"
+  family                   = var.task_definition_family
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.task_definition_cpu
@@ -11,6 +11,8 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
       name : var.microservice_name,
       image : var.task_definition_microservice_image,
       essential : true,
+      cpu : var.task_definition_cpu,
+      memory : var.task_definition_memory,
       portMappings : [
         {
           "containerPort" : 8080,
@@ -20,13 +22,19 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
-          "awslogs-group" : "/ecs/${var.microservice_name}",
+          "awslogs-group" : "/ecs/${var.task_definition_family}",
           "awslogs-region" : var.region,
-          "awslogs-stream-prefix" : var.project_tags.project
+          "awslogs-stream-prefix" : var.project_tags.project,
+          "awslogs-create-group" : "true",
+          "mode" : "non-blocking",
         }
       }
     }
   ])
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "ARM64"
+  }
 
   tags = var.project_tags
 }

@@ -22,7 +22,7 @@ resource "aws_iam_role" "ecs_task_role" {
   name               = "${var.project_tags.project}-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_trusted_entities_policy.json
   description        = "Allows ECS tasks to call AWS services on your behalf."
-  tags               = var.project_tags.project
+  tags               = var.project_tags
 }
 resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
   role       = aws_iam_role.ecs_task_role.name

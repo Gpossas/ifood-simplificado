@@ -11,14 +11,20 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
       name : var.microservice_name,
       image : var.task_definition_microservice_image,
       essential : true,
-      cpu : var.task_definition_cpu,
-      memory : var.task_definition_memory,
+      cpu : var.task_definition_cpu / 2,
+      memory : var.task_definition_memory / 2,
       portMappings : [
         {
           "containerPort" : 8080,
           "hostPort" : 8080
         }
       ],
+      dependsOn : [
+        {
+          "containerName" : var.mongodb_container_name
+          "condition" : "COMPLETE"
+        }
+      ]
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
@@ -29,8 +35,22 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
           "mode" : "non-blocking",
         }
       }
+    },
+    {
+      name : var.mongodb_container_name,
+      image : "mongo:latest",
+      essential : true,
+      cpu : var.task_definition_cpu / 2,
+      memory : var.task_definition_memory / 2,
+      portMappings : [
+        {
+          "containerPort" : 27017,
+          "hostPort" : 27017
+        }
+      ]
     }
   ])
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"

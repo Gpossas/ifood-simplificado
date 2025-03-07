@@ -103,6 +103,12 @@ variable "microservice_name" {
   default     = "orders-microservice"
 }
 
+variable "mongodb_container_name" {
+  description = "Name of the MongoDB container"
+  type        = string
+  default     = "mongodb"
+}
+
 variable "service_name" {
   description = "Service name"
   type        = string

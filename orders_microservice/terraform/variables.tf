@@ -76,13 +76,19 @@ variable "vpc_public_subnets" {
 variable "task_definition_cpu" {
   description = "CPU of the task definition"
   type        = number
-  default     = 0.5
+  default     = 1024
 }
 
 variable "task_definition_memory" {
   description = "Memory of the task definition"
   type        = number
-  default     = 1024
+  default     = 2048
+}
+
+variable "task_definition_family" {
+  description = "Family of the task definition"
+  type        = string
+  default     = "orders-task-family"
 }
 
 variable "task_definition_microservice_image" {
@@ -94,13 +100,13 @@ variable "task_definition_microservice_image" {
 variable "microservice_name" {
   description = "Microservice name"
   type        = string
-  default     = "orders microservice"
+  default     = "orders-microservice"
 }
 
 variable "service_name" {
   description = "Service name"
   type        = string
-  default     = "orders service"
+  default     = "orders-service"
 }
 
 variable "security_group_all_traffic" {
@@ -117,9 +123,27 @@ variable "security_group_anywhere" {
 
 variable "security_group_ports" {
   description = "Security group for HTTP traffic"
-  type        = map(number)
+  type        = map(string)
   default = {
     http  = 80
     https = 443
   }
+}
+
+variable "target_group_name" {
+  description = "Name of the target group"
+  type        = string
+  default     = "orders-target-group"
+}
+
+variable "load_balancer_name" {
+  description = "Name of the load balancer"
+  type        = string
+  default     = "orders-load-balancer"
+}
+
+variable "application_port" {
+  description = "Port of the application"
+  type        = number
+  default     = 8080
 }

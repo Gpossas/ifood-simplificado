@@ -18,7 +18,7 @@ resource "aws_alb_target_group" "ecs_target_group" {
   health_check {
     port     = var.application_port
     protocol = "HTTP"
-    path = "/actuator/health"
+    path     = "/actuator/health"
   }
 }
 
@@ -26,7 +26,7 @@ resource "aws_alb_listener" "load_balancer_listener" {
   load_balancer_arn = aws_alb.application_load_balancer.arn
   port              = var.security_group_ports.http
   protocol          = "HTTP"
-  tags = var.project_tags
+  tags              = var.project_tags
 
   default_action {
     type             = "forward"

@@ -51,7 +51,6 @@ public class OrderService
         log.info("Saved order to database {}", order.getOrderNumber());
 
         applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, savedOrder));
-        log.info("Published order placed event {}", order.getOrderNumber());
 
         return savedOrder;
     }

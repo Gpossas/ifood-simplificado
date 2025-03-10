@@ -27,7 +27,7 @@ public class OrderController
 
         log.info("Started processing order {}", orderNumber);
 
-        Order order = orderService.save(new Order(), orderRequest.itemsIds(), orderNumber);
+        Order order = orderService.save(new Order(orderNumber, orderRequest.customerId()), orderRequest.itemsIds());
 
         log.info("Finished processing order {}", orderNumber);
 

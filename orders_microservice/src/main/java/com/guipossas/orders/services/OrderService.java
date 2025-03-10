@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +25,17 @@ public class OrderService
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public Order save(Order order, List<String> orderItemIds, UUID orderNumber)
+    public Order save(Order order, List<String> orderItemIds)
     {
         List<OrderItem> orderItems = orderItemService.findAllIds(orderItemIds);
 
         if (orderItems.isEmpty())
         {
-            log.error("INTERRUPTED - Order {} has no items", orderNumber);
+            log.error("INTERRUPTED - Order {} has no items", order.getOrderNumber());
             throw new OrderWithEmptyItems();
         }
 
-        log.info("Validated order {}", orderNumber);
+        log.info("Validated order {}", order.getOrderNumber());
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (OrderItem orderItem : orderItems)
@@ -46,13 +45,13 @@ public class OrderService
 
         order.setTotal(totalAmount);
         order.setItems(orderItems);
-        order.setOrderNumber(orderNumber.toString());
+        order.setOrderNumber(order.getOrderNumber());
 
         Order savedOrder = orderRepository.save(order);
-        log.info("Saved order to database {}", orderNumber);
+        log.info("Saved order to database {}", order.getOrderNumber());
 
         applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, savedOrder));
-        log.info("Published order placed event {}", orderNumber);
+        log.info("Published order placed event {}", order.getOrderNumber());
 
         return savedOrder;
     }

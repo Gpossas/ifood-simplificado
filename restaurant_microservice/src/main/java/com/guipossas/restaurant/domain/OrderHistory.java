@@ -28,6 +28,7 @@ public class OrderHistory
 
     public OrderHistory(OrderRequestDto order)
     {
+        this.id = order.id();
         this.orderNumber = order.orderNumber();
         this.customerId = order.customerId();
         this.total = order.total();

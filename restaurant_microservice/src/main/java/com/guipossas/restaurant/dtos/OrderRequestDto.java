@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderRequestDto(
+        String id,
+
         String orderNumber,
 
         String customerId,

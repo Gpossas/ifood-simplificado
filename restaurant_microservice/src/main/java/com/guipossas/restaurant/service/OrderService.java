@@ -20,9 +20,9 @@ public class OrderService
     {
         log.info("Started processing order {}", order.getOrderNumber());
 
-        OrderHistory savedOrder = orderHistoryRepository.save(order);
+        orderHistoryRepository.save(order);
         log.info("Saved order to database {}", order.getOrderNumber());
 
-        applicationEventPublisher.publishEvent(new OrderReceivedEvent(this, savedOrder));
+        applicationEventPublisher.publishEvent(new OrderReceivedEvent(this, order));
     }
 }

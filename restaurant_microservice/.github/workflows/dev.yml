@@ -6,6 +6,8 @@ on:
       - main
     paths: ["src/**", "docker/**", "terraform/**"]
 
+  workflow_dispatch:
+
 jobs:
   build:
     name: Run tests and build application

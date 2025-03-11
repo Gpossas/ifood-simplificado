@@ -24,7 +24,10 @@ public class UpdateOrderStatus
         log.info("Subscriber {} received order {}", this.getClass().getSimpleName(), event.getOrderHistory().getOrderNumber());
 
         SendMessageRequest updateRequest = updateOrderStatusRequest.createMessageRequest(
-                new UpdateOrderStatusDto(event.getOrderHistory().getId(), "PREPARING"));
+                new UpdateOrderStatusDto(
+                        event.getOrderHistory().getId(),
+                        event.getOrderHistory().getOrderNumber(),
+                        "PREPARING"));
         sqsService.publishMessage(updateRequest);
 
         log.info("Sent order status update {}", event.getOrderHistory().getOrderNumber());

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Deprecated(since = "Use DynamoDbTemplate instead")
 @Repository
 public interface OrderItemRepository extends MongoRepository<OrderItem, String> {
 

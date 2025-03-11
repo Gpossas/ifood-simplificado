@@ -1,5 +1,6 @@
 package com.guipossas.orders.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.guipossas.orders.enums.OrderStatus;
 import com.guipossas.orders.enums.PaymentStatus;
 import lombok.*;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order
 {
     private String id;

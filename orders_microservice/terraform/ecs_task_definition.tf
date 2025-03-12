@@ -18,12 +18,6 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
           "containerPort" : 8080,
           "hostPort" : 8080
         }
-      ],
-      dependsOn : [
-        {
-          "containerName" : var.mongodb_container_name
-          "condition" : "HEALTHY"
-        }
       ]
       logConfiguration : {
         "logDriver" : "awslogs",
@@ -35,36 +29,6 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
           "mode" : "non-blocking",
         }
       }
-    },
-    {
-      name : var.mongodb_container_name,
-      image : "mongo:latest",
-      essential : true,
-      cpu : var.task_definition_cpu / 2,
-      memory : var.task_definition_memory / 2,
-      portMappings : [
-        {
-          "containerPort" : 27017,
-          "hostPort" : 27017
-        }
-      ],
-      healthCheck = {
-        command     = ["CMD", "mongosh", "--eval", "db.runCommand('ping').ok"]
-        interval    = 10
-        retries     = 5
-        startPeriod = 10
-        timeout     = 5
-      },
-      environment = [
-        {
-          "name" : "MONGO_INITDB_ROOT_USERNAME",
-          "value" : "admin"
-        },
-        {
-          "name" : "MONGO_INITDB_ROOT_PASSWORD",
-          "value" : "admin"
-        }
-      ],
     }
   ])
 

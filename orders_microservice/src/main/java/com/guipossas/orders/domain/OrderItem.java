@@ -26,7 +26,7 @@ public class OrderItem
     private Integer quantity;
     private String imageUrl;
     private String description;
-    private final LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     public OrderItem(OrderItemRequestDto orderItemRequestDto)
     {
@@ -36,6 +36,7 @@ public class OrderItem
         this.quantity = orderItemRequestDto.quantity();
         this.imageUrl = orderItemRequestDto.imageUrl();
         this.description = orderItemRequestDto.description();
+        this.createdAt = LocalDateTime.now();
     }
 
     @DynamoDbAttribute("id")

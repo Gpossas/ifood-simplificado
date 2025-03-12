@@ -1,7 +1,13 @@
-variable "database_name" {
+variable "orders_database_table" {
   description = "Name of the database"
   type        = string
-  default     = "ifood-simplificado-db"
+  default     = "order"
+}
+
+variable "order_items_database_table" {
+  description = "Name of the database"
+  type        = string
+  default     = "order_item"
 }
 
 variable "region" {
@@ -101,12 +107,6 @@ variable "microservice_name" {
   description = "Microservice name"
   type        = string
   default     = "orders-microservice"
-}
-
-variable "mongodb_container_name" {
-  description = "Name of the MongoDB container"
-  type        = string
-  default     = "mongodb"
 }
 
 variable "service_name" {

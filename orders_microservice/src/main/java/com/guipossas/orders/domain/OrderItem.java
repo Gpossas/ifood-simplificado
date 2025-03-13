@@ -5,6 +5,7 @@ import com.guipossas.orders.dto.OrderItemRequestDto;
 import lombok.*;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbIgnoreNulls;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.math.BigDecimal;
@@ -70,12 +71,14 @@ public class OrderItem
         return quantity;
     }
 
+    @DynamoDbIgnoreNulls
     @DynamoDbAttribute("imageUrl")
     public String getImageUrl()
     {
         return imageUrl;
     }
 
+    @DynamoDbIgnoreNulls
     @DynamoDbAttribute("description")
     public String getDescription()
     {

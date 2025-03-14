@@ -79,7 +79,6 @@ public class Order
     }
 
     @DynamoDbSecondarySortKey(indexNames = "StatusCreatedAtIndex")
-    @DynamoDbSortKey
     @DynamoDbAttribute("createdAt")
     public LocalDateTime getCreatedAt()
     {

@@ -10,6 +10,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -23,11 +25,12 @@ public class UpdateOrderStatus
     {
         log.info("Subscriber {} received order {}", this.getClass().getSimpleName(), event.getOrderHistory().getOrderNumber());
 
-        SendMessageRequest updateRequest = updateOrderStatusRequest.createMessageRequest(
-                new UpdateOrderStatusDto(
-                        event.getOrderHistory().getId(),
-                        event.getOrderHistory().getOrderNumber(),
-                        "PREPARING"));
+        SendMessageRequest updateRequest = updateOrderStatusRequest.createMessageRequest(new UpdateOrderStatusDto(
+                event.getOrderHistory().getId(),
+                event.getOrderHistory().getOrderNumber(),
+                "PREPARING",
+                LocalDateTime.now(),
+                event.getOrderHistory().getOrderPlacedAt()));
         sqsService.publishMessage(updateRequest);
 
         log.info("Sent order status update {}", event.getOrderHistory().getOrderNumber());

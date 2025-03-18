@@ -7,7 +7,7 @@ terraform {
   }
   backend "s3" {
     bucket = "gpossas-terraform-backend"
-    key    = "ifood-simplificado.tfstate"
+    key    = "ifood-simplificado/dev/vpc.tfstate"
     region = "sa-east-1"
   }
 }

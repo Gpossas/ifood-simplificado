@@ -14,7 +14,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   cpu                      = var.task_definition_cpu
   memory                   = var.task_definition_memory
   execution_role_arn       = module.ecs_roles.task_execution_role_arn
-  task_role_arn            = optional(module.ecs_roles.ecs_task_role_arn)
+  task_role_arn            = var.task_role_arn
   container_definitions    = var.container_definition
 
   runtime_platform {

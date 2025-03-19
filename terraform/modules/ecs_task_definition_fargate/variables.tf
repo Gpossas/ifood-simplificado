@@ -20,3 +20,9 @@ variable "container_definition" {
     description = "Container definition of the task definition"
     type        = any
 }
+
+variable "task_role_arn" {
+    description = "ARN of the task role"
+    type        = string
+    default = null
+}

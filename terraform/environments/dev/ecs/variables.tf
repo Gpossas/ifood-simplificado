@@ -82,8 +82,15 @@ variable "mongodb_container_name" {
 }
 
 variable "service_name_orders_microservice" {
-  description = "Name of the service"
+  description = "Name of the service for orders microservice"
   type        = string
   default     = "orders-microservice"
+  nullable    = false
+}
+
+variable "service_name_restaurant_microservice" {
+  description = "Name of the service for restaurant microservice"
+  type        = string
+  default     = "restaurant-microservice"
   nullable    = false
 }

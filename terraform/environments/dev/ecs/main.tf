@@ -65,7 +65,7 @@ module "service_orders_microservice" {
     data.terraform_remote_state.security_group.outputs.ecs_sg_id
   ]
 
-  ecs_target_group_arn = data.terraform_remote_state.load_balancer.outputs.ecs_target_group_arn
+  ecs_target_group_arn = data.terraform_remote_state.load_balancer.outputs.ecs_target_group_orders_microservice_arn
   container_name       = var.container_name_orders_microservice
 }
 
@@ -139,4 +139,21 @@ module "task_definition_restaurant_microservice" {
       ],
     }
   ])
+}
+
+module "service_restaurant_microservice" {
+  source = "../../../modules/ecs_service_fargate"
+
+  service_name        = "${var.service_name_restaurant_microservice}-service"
+  cluster_id          = module.cluster.cluster_id
+  task_definition_arn = module.task_definition_restaurant_microservice.task_definition_arn
+
+  private_subnets = data.terraform_remote_state.vpc.outputs.private_subnets
+  security_groups_ids = [
+    data.terraform_remote_state.security_group.outputs.alb_sg_id,
+    data.terraform_remote_state.security_group.outputs.ecs_sg_id
+  ]
+
+  ecs_target_group_arn = data.terraform_remote_state.load_balancer.outputs.ecs_target_group_restaurant_microservice_arn
+  container_name       = var.container_name_restaurant_microservice
 }

@@ -21,6 +21,12 @@ variable "container_definition" {
     type        = any
 }
 
+variable "task_execution_role_arn" {
+    description = "ARN of the task execution role"
+    type        = string
+    nullable    = false
+}
+
 variable "task_role_arn" {
     description = "ARN of the task role"
     type        = string

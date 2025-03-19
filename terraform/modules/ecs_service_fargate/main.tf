@@ -1,19 +1,19 @@
 resource "aws_ecs_service" "ecs_service" {
   name            = var.service_name
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.ecs_task_definition.arn
-  desired_count   = 2
+  cluster         = var.cluster_id
+  task_definition = var.task_definition_arn
+  desired_count   = var.instances_count
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = module.vpc.private_subnets
-    security_groups  = [aws_security_group.ecs_security_group.id]
+    subnets          = var.private_subnets
+    security_groups  = var.security_groups_ids
     assign_public_ip = false
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.ecs_target_group.arn
-    container_name   = var.microservice_name
-    container_port   = var.application_port
+    target_group_arn = var.ecs_target_group_arn
+    container_name   = var.container_name
+    container_port   = local.application_port
   }
 }

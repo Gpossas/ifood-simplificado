@@ -9,14 +9,13 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
   container_definitions = jsonencode([
     {
       name : var.microservice_name,
-      image : var.task_definition_microservice_image,
+      image : "${var.task_definition_microservice_image}:latest",
       essential : false,
       cpu : var.task_definition_cpu / 2,
       memory : var.task_definition_memory / 2,
       portMappings : [
         {
-          "containerPort" : 8080,
-          "hostPort" : 8080
+          "containerPort" : 8080
         }
       ],
       dependsOn : [
@@ -24,7 +23,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
           "containerName" : var.mongodb_container_name
           "condition" : "HEALTHY"
         }
-      ]
+      ],
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
@@ -44,8 +43,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
       memory : var.task_definition_memory / 2,
       portMappings : [
         {
-          "containerPort" : 27017,
-          "hostPort" : 27017
+          "containerPort" : 27017
         }
       ],
       healthCheck = {
@@ -64,7 +62,7 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
           "name" : "MONGO_INITDB_ROOT_PASSWORD",
           "value" : "admin"
         }
-      ],
+      ]
     }
   ])
 

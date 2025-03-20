@@ -8,8 +8,11 @@ module "cluster" {
 }
 
 module "ecs_roles" {
-  source          = "../../../modules/ecs_roles"
-  create_sqs_role = true
+  source                 = "../../../modules/ecs_roles"
+  create_ecs_task_role   = true
+  create_sqs_policy      = true
+  create_dynamodb_policy = true
+
   queues_arns = [
     data.terraform_remote_state.sqs.outputs.orders_microservice_queue_arn,
     data.terraform_remote_state.sqs.outputs.restaurant_microservice_queue_arn
@@ -41,7 +44,7 @@ module "task_definition_orders_microservice" {
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
-          "awslogs-group" : "/ecs/${var.task_definition_family_name_orders_microservice}",
+          "awslogs-group" : "/ecs/${var.task_definition_family_name_orders_microservice}-family",
           "awslogs-region" : module.global.aws_region,
           "awslogs-stream-prefix" : module.global.project_tag.project,
           "awslogs-create-group" : "true",
@@ -87,20 +90,19 @@ module "task_definition_restaurant_microservice" {
       memory : var.task_definition_memory_restaurant_microservice / 2,
       portMappings : [
         {
-          "containerPort" : local.application_port,
-          "hostPort" : local.application_port
+          "containerPort" : local.application_port
         }
       ],
       dependsOn : [
         {
-          "containerName" : var.mongodb_container_name
+          "containerName" : var.mongodb_container_name,
           "condition" : "HEALTHY"
         }
       ]
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
-          "awslogs-group" : "/ecs/${var.task_definition_family_name_restaurant_microservice}",
+          "awslogs-group" : "/ecs/${var.task_definition_family_name_restaurant_microservice}-family",
           "awslogs-region" : module.global.aws_region,
           "awslogs-stream-prefix" : module.global.project_tag.project,
           "awslogs-create-group" : "true",
@@ -116,8 +118,7 @@ module "task_definition_restaurant_microservice" {
       memory : var.task_definition_memory_restaurant_microservice / 2,
       portMappings : [
         {
-          "containerPort" : local.mongodb_port,
-          "hostPort" : local.mongodb_port
+          "containerPort" : local.mongodb_port
         }
       ],
       healthCheck = {

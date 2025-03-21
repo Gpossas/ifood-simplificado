@@ -1,0 +1,37 @@
+name: "Ifood simplificado CI/CD"
+
+on:
+  workflow_call:
+    inputs:
+      aws_assume_role_arn:
+        required: true
+        type: string
+      aws_s3_terraform_backend:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+
+jobs:
+  terraform:
+    name: Init terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone code from GitHub repository inside GitHub actions runner
+        uses: actions/checkout@v4
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-assume-role-arn: ${{ inputs.aws_assume_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.0
+
+      - name: Terraform Init
+        run: bash terraform/scripts/terraform_init.sh
+

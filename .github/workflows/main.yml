@@ -2,7 +2,7 @@ name: "Ifood simplificado CI/CD"
 
 on:
   workflow_call:
-    inputs:
+    secrets:
       aws_assume_role_arn:
         required: true
         type: string

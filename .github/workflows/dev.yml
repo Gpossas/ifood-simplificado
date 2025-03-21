@@ -6,10 +6,14 @@ on:
       - workflow
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     uses: ./.github/workflows/main.yml
-    with:
+    secrets:
       aws_assume_role_arn: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
       aws_s3_terraform_backend: ${{ secrets.AWS_S3_TERRAFORM_BACKEND }}
       aws_region: ${{ secrets.AWS_REGION }}

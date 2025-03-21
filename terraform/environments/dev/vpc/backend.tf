@@ -5,9 +5,5 @@ terraform {
       version = "~> 5.0"
     }
   }
-  backend "s3" {
-    bucket = "gpossas-terraform-backend"
-    key    = "ifood-simplificado/dev/vpc.tfstate"
-    region = "sa-east-1"
-  }
+  backend "s3" {}
 }

@@ -10,6 +10,6 @@ jobs:
   build:
     uses: ./.github/workflows/main.yml
     with:
-      aws_assume_role_arn: ${{ vars.AWS_ASSUME_ROLE_ARN }}
-      aws_s3_terraform_backend: ${{ vars.AWS_S3_TERRAFORM_BACKEND }}
-      aws_region: ${{ vars.AWS_REGION }}
+      aws_assume_role_arn: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+      aws_s3_terraform_backend: ${{ secrets.AWS_S3_TERRAFORM_BACKEND }}
+      aws_region: ${{ secrets.AWS_REGION }}

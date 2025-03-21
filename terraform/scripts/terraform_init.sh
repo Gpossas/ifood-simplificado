@@ -7,7 +7,7 @@ set -e  # Exit on first error
 ENV="dev"
 RESOURCES=("sqs" "dynamodb" "vpc" "security_group" "load_balancer" "ecs" "api_gateway")
 
-cd "../environments/$ENV/"
+cd "$(dirname "$0")/../environments/$ENV/"
 
 for RESOURCE in "${RESOURCES[@]}"; do
   echo "Initializing Terraform for $RESOURCE..."

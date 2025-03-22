@@ -6,7 +6,7 @@ set -e  # Exit on first error
 
 RESOURCES=("sqs")
 
-cd "../environments/$ENV/"
+cd "$(dirname "$0")/../environments/$ENV/"
 
 for RESOURCE in "${RESOURCES[@]}"; do
   echo "Applying Terraform for $RESOURCE..."

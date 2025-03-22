@@ -4,7 +4,6 @@
 
 set -e  # Exit on first error
 
-ENV="dev"
 RESOURCES=("sqs" "dynamodb" "vpc" "security_group" "load_balancer" "ecs" "api_gateway")
 
 cd "$(dirname "$0")/../environments/$ENV/"

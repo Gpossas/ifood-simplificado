@@ -13,6 +13,8 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/main.yml
+    with:
+      environment: dev
     secrets:
       aws_assume_role_arn: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
       aws_s3_terraform_backend: ${{ secrets.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}

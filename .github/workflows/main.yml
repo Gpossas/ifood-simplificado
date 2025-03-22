@@ -2,6 +2,10 @@ name: "Ifood simplificado CI/CD"
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
     secrets:
       aws_assume_role_arn:
         required: true
@@ -32,8 +36,11 @@ jobs:
       - name: Terraform Init
         run: bash terraform/scripts/terraform_init.sh
         env:
+          ENV: ${{ inputs.environment }}
           AWS_S3_TERRAFORM_BACKEND: ${{ secrets.aws_s3_terraform_backend }}
           AWS_REGION: ${{ secrets.aws_region }}
 
       - name: Terraform Validate
         run: bash terraform/scripts/terraform_validate.sh
+        env:
+          ENV: ${{ inputs.environment }}

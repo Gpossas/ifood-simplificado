@@ -90,6 +90,6 @@ jobs:
         run: |
           cd orders_microservice
           echo ${{ secrets.DOCKER_ACCESS_TOKEN }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
-          docker build --platform linux/arm64 -t ${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest .
+          docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest .
           docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest
       

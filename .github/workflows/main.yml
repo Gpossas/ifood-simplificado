@@ -94,4 +94,15 @@ jobs:
           echo ${{ secrets.docker_access_token }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
           docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest .
           docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest
-      
+
+      - name: Run Tests and Build jar File For Restaurant Microservice
+        run: cd restaurant_microservice && mvn clean install
+        env:
+          AWS_SQS_ORDER_REQUEST_URL: ${{ needs.before_build_terraform.outputs.order_placed_queue_arn }}
+
+      - name: Push image to Docker Hub For Restaurant Microservice
+        run: |
+          cd restaurant_microservice
+          echo ${{ secrets.docker_access_token }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
+          docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest .
+          docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest

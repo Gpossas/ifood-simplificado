@@ -35,3 +35,5 @@ jobs:
           AWS_S3_TERRAFORM_BACKEND: ${{ secrets.aws_s3_terraform_backend }}
           AWS_REGION: ${{ secrets.aws_region }}
 
+      - name: Terraform Validate
+        run: bash terraform/scripts/terraform_validate.sh

@@ -15,9 +15,12 @@ on:
         required: true
 
 jobs:
-  terraform:
+  before_build_terraform:
     name: Init terraform
     runs-on: ubuntu-latest
+    outputs:
+      order_placed_queue_arn: ${{ steps.terraform_output.outputs.order_placed_queue_arn }}
+      update_order_status_queue_arn: ${{ steps.terraform_output.outputs.update_order_status_queue_arn }}
     steps:
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
@@ -49,3 +52,11 @@ jobs:
         run: bash terraform/scripts/terraform_apply_before_application_image_build.sh
         env:
           ENV: ${{ inputs.environment }}
+
+      - name: Terraform Outputs
+        id: terraform_output
+        run: |
+          terraform output -json | jq -r '.orders_microservice_queue_arn.value' > order_placed_queue_arn.txt
+          terraform output -json | jq -r '.restaurant_microservice_queue_arn.value' > update_order_status_queue_arn.txt
+          echo "order_placed_queue_arn=$(cat order_placed_queue_arn.txt)" >> $GITHUB_OUTPUT
+          echo "update_order_status_queue_arn=$(cat update_order_status_queue_arn.txt)" >> $GITHUB_OUTPUT

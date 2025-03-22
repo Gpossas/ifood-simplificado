@@ -44,3 +44,8 @@ jobs:
         run: bash terraform/scripts/terraform_validate.sh
         env:
           ENV: ${{ inputs.environment }}
+
+      - name: Terraform Apply
+        run: bash terraform/scripts/terraform_apply_before_application_image_build.sh
+        env:
+          ENV: ${{ inputs.environment }}

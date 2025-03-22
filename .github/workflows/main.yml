@@ -60,3 +60,30 @@ jobs:
           terraform output -json | jq -r '.restaurant_microservice_queue_arn.value' > update_order_status_queue_arn.txt
           echo "order_placed_queue_arn=$(cat order_placed_queue_arn.txt)" >> $GITHUB_OUTPUT
           echo "update_order_status_queue_arn=$(cat update_order_status_queue_arn.txt)" >> $GITHUB_OUTPUT
+
+  build_application_image:
+    name: Build application image
+    runs-on: ubuntu-latest
+    needs: before_build_terraform
+    steps:
+      - name: Clone code from GitHub repository inside GitHub actions runner
+        uses: actions/checkout@v4
+
+      - name: Set up jdk 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run Tests and Build jar File For Orders Microservice
+        run: cd orders_microservice && mvn clean install
+        env:
+          - AWS_SQS_ORDER_REQUEST_URL: ${{ needs.before_build_terraform.outputs.order_placed_queue_arn }}
+
+      - name: Push image to Docker Hub For Orders Microservice
+        run: |
+          cd orders_microservice
+          echo ${{ secrets.DOCKER_ACCESS_TOKEN }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
+          docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME }}:latest .
+          docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest
+      

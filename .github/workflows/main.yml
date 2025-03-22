@@ -13,6 +13,8 @@ on:
         required: true
       aws_region:
         required: true
+      docker_access_token:
+        required: true
 
 jobs:
   before_build_terraform:
@@ -89,7 +91,7 @@ jobs:
       - name: Push image to Docker Hub For Orders Microservice
         run: |
           cd orders_microservice
-          echo ${{ secrets.DOCKER_ACCESS_TOKEN }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
+          echo ${{ secrets.docker_access_token }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
           docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest .
           docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest
       

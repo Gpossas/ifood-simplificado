@@ -19,3 +19,4 @@ jobs:
       aws_assume_role_arn: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
       aws_s3_terraform_backend: ${{ secrets.AWS_TERRAFORM_BACKEND_BUCKET_NAME }}
       aws_region: ${{ secrets.AWS_REGION }}
+      docker_access_token: ${{ secrets.DOCKER_ACCESS_TOKEN }}

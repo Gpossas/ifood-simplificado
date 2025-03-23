@@ -1,0 +1,31 @@
+name: Destroy all terraform resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  destroy:
+    with:
+      environment: ${{ inputs.environment }}
+    steps:
+      - name: Clone code from GitHub repository inside GitHub actions runner
+        uses: actions/checkout@v4
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_assume_role_arn }}
+          aws-region: ${{ secrets.aws_region }}
+
+      - name: Destroy Terraform resources
+        run: bash terraform/scripts/terraform_destroy.sh
+        env:
+          ENV: ${{ inputs.environment }}

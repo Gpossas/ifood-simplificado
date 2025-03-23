@@ -58,15 +58,15 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
-          update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_url)
-          echo "order_placed_queue_url=$order_placed_queue_url" >> $GITHUB_ENV
-          echo "update_order_status_queue_url=$update_order_status_queue_url" >> $GITHUB_ENV
+          terraform output -json | jq -r '.orders_microservice_queue_url.value' > order_placed_queue_url.txt
+          terraform output -json | jq -r '.restaurant_microservice_queue_url.value' > update_order_status_queue_url.txt
+          echo "order_placed_queue_url=$(cat order_placed_queue_url.txt)" >> $GITHUB_OUTPUT
+          echo "update_order_status_queue_url=$(cat update_order_status_queue_url.txt)" >> $GITHUB_OUTPUT
 
       - name: Debug Outputs
         run: |
-          echo "order queue ARN: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
-          echo "restaurant queue ARN: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}"
+          echo "order queue url: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
+          echo "restaurant queue url: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}"
   
 
   build_application_image:

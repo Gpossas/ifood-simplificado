@@ -21,8 +21,8 @@ jobs:
     name: Init terraform
     runs-on: ubuntu-latest
     outputs:
-      order_placed_queue_arn: ${{ steps.terraform_output.outputs.order_placed_queue_arn }}
-      update_order_status_queue_arn: ${{ steps.terraform_output.outputs.update_order_status_queue_arn }}
+      order_placed_queue_url: ${{ steps.terraform_output.outputs.order_placed_queue_url }}
+      update_order_status_queue_url: ${{ steps.terraform_output.outputs.update_order_status_queue_url }}
     steps:
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
@@ -58,17 +58,15 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          order_placed_queue_arn=$(terraform output -raw orders_microservice_queue_arn)
-          update_order_status_queue_arn=$(terraform output -raw restaurant_microservice_queue_arn)
-          echo "order_placed_queue_arn=$order_placed_queue_arn" >> $GITHUB_ENV
-          echo "update_order_status_queue_arn=$update_order_status_queue_arn" >> $GITHUB_ENV
-          echo "::set-output name=order_placed_queue_arn::$order_placed_queue_arn"
-          echo "::set-output name=update_order_status_queue_arn::$update_order_status_queue_arn"
+          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_arn)
+          update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_arn)
+          echo "order_placed_queue_url=$order_placed_queue_url" >> $GITHUB_ENV
+          echo "update_order_status_queue_url=$update_order_status_queue_url" >> $GITHUB_ENV
 
       - name: Debug Outputs
         run: |
-          echo "order queue ARN: ${{ needs.before_build_terraform.outputs.order_placed_queue_arn }}"
-          echo "restaurant queue ARN: ${{ needs.before_build_terraform.outputs.update_order_status_queue_arn }}"
+          echo "order queue ARN: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
+          echo "restaurant queue ARN: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}"
   
 
   build_application_image:
@@ -94,7 +92,7 @@ jobs:
       - name: Run Tests and Build jar File For Orders Microservice
         run: cd orders_microservice && mvn clean install
         env:
-          AWS_SQS_ORDER_REQUEST_URL: ${{ needs.before_build_terraform.outputs.order_placed_queue_arn }}
+          AWS_SQS_ORDER_REQUEST_URL: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}
 
       - name: Push image to Docker Hub For Orders Microservice
         run: |
@@ -106,7 +104,7 @@ jobs:
       - name: Run Tests and Build jar File For Restaurant Microservice
         run: cd restaurant_microservice && mvn clean install
         env:
-          AWS_SQS_ORDER_STATUS_UPDATE_URL: ${{ needs.before_build_terraform.outputs.update_order_status_queue_arn }}
+          AWS_SQS_ORDER_STATUS_UPDATE_URL: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}
 
       - name: Push image to Docker Hub For Restaurant Microservice
         run: |

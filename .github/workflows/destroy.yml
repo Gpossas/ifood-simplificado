@@ -34,10 +34,14 @@ jobs:
           terraform_version: 1.11.0
 
       - name: debug
+        env:
+          AWS_GITHUB_ACCESS_ROLE_ARN: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ENV: ${{ inputs.environment }}
         run: |
-          echo "${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}"
-          echo "${{ secrets.AWS_REGION }}"
-          echo ${{ inputs.environment }}
+          echo ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }} | sed 's/./& /g'
+          echo ${{ secrets.AWS_REGION }} | sed 's/./& /g'
+          echo ${{ inputs.environment }} | sed 's/./& /g'
 
       - name: Terraform Init
         run: bash terraform/scripts/terraform_init.sh

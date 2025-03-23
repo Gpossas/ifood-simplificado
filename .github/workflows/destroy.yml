@@ -44,3 +44,5 @@ jobs:
         run: bash terraform/scripts/terraform_destroy.sh
         env:
           ENV: ${{ inputs.environment }}
+          ORDERS_IMAGE: ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest
+          RESTAURANT_IMAGE: ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest

@@ -13,7 +13,14 @@ for RESOURCE in "${RESOURCES[@]}"; do
 
   cd "$RESOURCE/"
 
-  terraform destroy -auto-approve
+  if [ "$RESOURCE" == "ecs" ]; then
+        terraform destroy \
+            -var="task_definition_microservice_image_orders_microservice=$ORDERS_IMAGE" \
+            -var="task_definition_microservice_image_restaurant_microservice=$RESTAURANT_IMAGE" \
+            -auto-approve
+    else
+        terraform destroy -auto-approve
+    fi
 
   cd ".." # go back
 done

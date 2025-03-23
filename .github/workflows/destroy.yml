@@ -35,8 +35,8 @@ jobs:
 
       - name: debug
         run: |
-          echo ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
-          echo ${{ secrets.AWS_REGION }}
+          echo "${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}"
+          echo "${{ secrets.AWS_REGION }}"
           echo ${{ inputs.environment }}
 
       - name: Terraform Init

@@ -11,7 +11,7 @@ data "terraform_remote_state" "security_group" {
   backend = "s3"
   config = {
     bucket = "gpossas-terraform-backend"
-    key    = "ifood-simplificado/dev/sg.tfstate"
+    key    = "ifood-simplificado/dev/secutiry_group.tfstate"
     region = "sa-east-1"
   }
 }

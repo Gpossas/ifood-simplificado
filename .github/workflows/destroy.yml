@@ -33,6 +33,13 @@ jobs:
         with:
           terraform_version: 1.11.0
 
+      - name: Terraform Init
+        run: bash terraform/scripts/terraform_init.sh
+        env:
+          ENV: ${{ inputs.environment }}
+          AWS_S3_TERRAFORM_BACKEND: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
       - name: Destroy Terraform resources
         run: bash terraform/scripts/terraform_destroy.sh
         env:

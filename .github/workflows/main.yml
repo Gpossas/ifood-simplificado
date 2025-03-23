@@ -58,8 +58,8 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_arn)
-          update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_arn)
+          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
+          update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_url)
           echo "order_placed_queue_url=$order_placed_queue_url" >> $GITHUB_ENV
           echo "update_order_status_queue_url=$update_order_status_queue_url" >> $GITHUB_ENV
 

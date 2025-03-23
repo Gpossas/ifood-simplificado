@@ -13,12 +13,12 @@ for RESOURCE in "${RESOURCES[@]}"; do
 
   cd "$RESOURCE/"
 
-    if [ RESOURCE == "ecs" ]; then
+    if [ "$RESOURCE" == "ecs" ]; then
         terraform apply \
             -var="task_definition_microservice_image_orders_microservice=$ORDERS_IMAGE" \
             -var="task_definition_microservice_image_restaurant_microservice=$RESTAURANT_IMAGE" \
             -auto-approve
-    fi else
+    else
         terraform apply -auto-approve
     fi
 

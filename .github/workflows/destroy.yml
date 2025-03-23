@@ -21,8 +21,8 @@ jobs:
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.aws_assume_role_arn }}
-          aws-region: ${{ secrets.aws_region }}
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Destroy Terraform resources
         run: bash terraform/scripts/terraform_destroy.sh

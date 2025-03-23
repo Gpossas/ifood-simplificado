@@ -33,6 +33,12 @@ jobs:
         with:
           terraform_version: 1.11.0
 
+      - name: debug
+        run: |
+          echo ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
+          echo ${{ secrets.AWS_REGION }}
+          echo ${{ inputs.environment }}
+
       - name: Terraform Init
         run: bash terraform/scripts/terraform_init.sh
         env:

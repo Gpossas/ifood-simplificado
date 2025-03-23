@@ -28,6 +28,11 @@ jobs:
           role-to-assume: ${{ secrets.AWS_GITHUB_ACCESS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.0
+
       - name: Destroy Terraform resources
         run: bash terraform/scripts/terraform_destroy.sh
         env:

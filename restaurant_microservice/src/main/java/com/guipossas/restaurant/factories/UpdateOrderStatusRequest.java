@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 @Component
 public class UpdateOrderStatusRequest
 {
-    @Value("${aws.sqs.order-status-update.url}")
+    @Value("${aws.sqs.order_status_update.url}")
     private String queueUrl;
 
     public SendMessageRequest createMessageRequest(UpdateOrderStatusDto orderStatusDto)

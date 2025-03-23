@@ -9,7 +9,7 @@ RESOURCES=("api_gateway" "ecs" "load_balancer" "security_group" "vpc" "dynamodb"
 cd "$(dirname "$0")/../environments/$ENV/"
 
 for RESOURCE in "${RESOURCES[@]}"; do
-  echo "Applying Terraform for $RESOURCE..."
+  echo "Destroying Terraform resource $RESOURCE..."
 
   cd "$RESOURCE/"
 

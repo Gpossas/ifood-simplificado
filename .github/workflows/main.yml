@@ -58,8 +58,9 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          terraform output -json | jq -r '.orders_microservice_queue_url.value' > order_placed_queue_url.txt
-          terraform output -json | jq -r '.restaurant_microservice_queue_url.value' > update_order_status_queue_url.txt
+          terraform_outputs=$(terraform output -json)
+          order_placed_queue_url=$(echo "$terraform_outputs" | jq -r '.restaurant_microservice_queue_url.value // empty')
+          update_order_status_queue_url=$(echo "$terraform_outputs" | jq -r '.orders_microservice_queue_url.value // empty')
           echo "order_placed_queue_url=$(cat order_placed_queue_url.txt)" >> $GITHUB_OUTPUT
           echo "update_order_status_queue_url=$(cat update_order_status_queue_url.txt)" >> $GITHUB_OUTPUT
 

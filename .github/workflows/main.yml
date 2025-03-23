@@ -121,6 +121,9 @@ jobs:
           role-to-assume: ${{ secrets.aws_assume_role_arn }}
           aws-region: ${{ secrets.aws_region }}
 
+      - name: Authenticate to Docker Hub
+        run: echo ${{ secrets.docker_access_token }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:

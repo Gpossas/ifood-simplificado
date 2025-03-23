@@ -14,8 +14,6 @@ on:
 jobs:
   destroy:
     runs-on: ubuntu-latest
-    with:
-      environment: ${{ inputs.environment }}
     steps:
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4

@@ -106,3 +106,29 @@ jobs:
           echo ${{ secrets.docker_access_token }} | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
           docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest .
           docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest
+
+  after_build_terraform:
+    name: Build Terraform resources after build application image
+    needs: build_application_image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone code from GitHub repository inside GitHub actions runner
+        uses: actions/checkout@v4
+
+      - name: Authenticate to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_assume_role_arn }}
+          aws-region: ${{ secrets.aws_region }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.0
+
+      - name: Terraform Apply
+        run: bash terraform/scripts/terraform_apply_after_application_image_build.sh
+        env:
+          ENV: ${{ inputs.environment }}
+          ORDERS_IMAGE: ${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}
+          RESTAURANT_IMAGE: ${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}

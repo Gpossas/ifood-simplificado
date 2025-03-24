@@ -57,12 +57,15 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
-          echo "Order Queue URL: $order_placed_queue_url"
+          terraform output
           
+          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
+          echo "Order Queue URL: $order_placed_queue_url"   
           BINARY_ENCRYPTED_SECRET=$(echo -n "$order_placed_queue_url" | openssl enc -aes-256-cbc -pbkdf2 -salt -k "test");
           ENCRYPTED_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | base64 -w 0);
           echo "our-secret=$ENCRYPTED_SECRET" >> $GITHUB_OUTPUT
+          
+          order_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$order_placed_queue_url") | base64 -w0)
           
         working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
 
@@ -72,6 +75,7 @@ jobs:
           echo "order queue url: ${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
     outputs:
       ORDER_PLACED_QUEUE_URL: ${{ steps.terraform_output.outputs.our-secret }}
+      order_encrypted: ${{ steps.terraform_output.outputs.order_encrypted }}
   
 
   build_application_image:
@@ -88,6 +92,11 @@ jobs:
           BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode);
           OUR_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test");
           echo "our-secret=$OUR_SECRET" >> $GITHUB_OUTPUT
+          
+          encrypted_secret=${{ needs.before_build_terraform.outputs.order_encrypted }}
+          order_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$encrypted_secret" | base64 --decode))
+          echo "order_queue_url=$order_decrypted"
+
 
       - name: Debug outputs 2
         run: |

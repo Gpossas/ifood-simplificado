@@ -79,15 +79,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: before_build_terraform
     steps:
-      - name: Debug outputs
-        run: |
-          DECRYPTED_SECRET=$(echo -n "${{ needs.before_build_terraform.outputs.order_placed_queue_url }}" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test" -base64)
-          echo "Decrypted Order Queue URL: $DECRYPTED_SECRET"
-  
-          echo "order queue url: $OUR_SECRET"
-
       - name: debug env
         run: env
+      - name: Debug outputs
+        run: |
+          ENCRYPTED_SECRET="${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
+
+          BINARY_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode)
+          
+          DECRYPTED_SECRET=$(echo -n "$BINARY_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test")
+
+          echo "Decrypted Order Queue URL: $DECRYPTED_SECRET"
 
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4

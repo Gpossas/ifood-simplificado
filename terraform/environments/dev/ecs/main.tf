@@ -42,19 +42,19 @@ module "task_definition_orders_microservice" {
         },
         {
           "name": "RESTAURANT_RESPONSE_TIME_LIMIT_IN_SECONDS"
-          "value": var.restaurant_response_time_limit
+          "value": tostring(var.restaurant_response_time_limit)
         },
         {
           "name": "INITIAL_DELAY_IN_SECONDS"
-          "value": var.initial_delay
+          "value": tostring(var.initial_delay)
         }
-      ]
+      ],
       portMappings : [
         {
           "containerPort" : local.application_port,
           "hostPort" : local.application_port
         }
-      ]
+      ],
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {
@@ -118,7 +118,7 @@ module "task_definition_restaurant_microservice" {
           "containerName" : var.mongodb_container_name,
           "condition" : "HEALTHY"
         }
-      ]
+      ],
       logConfiguration : {
         "logDriver" : "awslogs",
         "options" : {

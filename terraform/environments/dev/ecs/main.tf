@@ -35,6 +35,20 @@ module "task_definition_orders_microservice" {
       essential : true,
       cpu : var.task_definition_cpu_orders_microservice,
       memory : var.task_definition_memory_orders_microservice,
+      environment = [
+        {
+          "name": "AWS_SQS_ORDER_REQUEST_URL"
+          "value": data.terraform_remote_state.sqs.outputs.orders_microservice_queue_url
+        },
+        {
+          "name": "RESTAURANT_RESPONSE_TIME_LIMIT_IN_SECONDS"
+          "value": var.restaurant_response_time_limit
+        },
+        {
+          "name": "INITIAL_DELAY_IN_SECONDS"
+          "value": var.initial_delay
+        }
+      ]
       portMappings : [
         {
           "containerPort" : local.application_port,
@@ -88,6 +102,12 @@ module "task_definition_restaurant_microservice" {
       essential : false,
       cpu : var.task_definition_cpu_restaurant_microservice / 2,
       memory : var.task_definition_memory_restaurant_microservice / 2,
+      environment = [
+        {
+          "name": "AWS_SQS_ORDER_REQUEST_URL"
+          "value": data.terraform_remote_state.sqs.outputs.restaurant_microservice_queue_url
+        }
+      ],
       portMappings : [
         {
           "containerPort" : local.application_port

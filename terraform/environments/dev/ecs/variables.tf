@@ -94,3 +94,15 @@ variable "service_name_restaurant_microservice" {
   default     = "restaurant-microservice"
   nullable    = false
 }
+
+variable "restaurant_response_time_limit" {
+  description = "Response time limit to wait for a restaurant response in seconds"
+  type        = number
+  default     = 300
+}
+
+variable "initial_delay" {
+  description = "Initial delay in seconds to start job to delete orders not responded"
+  type        = number
+  default     = 180
+}

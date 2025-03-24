@@ -61,7 +61,7 @@ jobs:
           orders_placed_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$order_placed_queue_url") | base64 -w0)
           echo "orders_queue_url_encrypted=orders_placed_encrypted" >> $GITHUB_OUTPUT
           
-          orders_update_status_queue=$(terraform output -raw orders_microservice_queue_url)
+          orders_update_status_queue=$(terraform output -raw restaurant_microservice_queue_url)
           order_update_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$orders_update_status_queue") | base64 -w0)
           echo "restaurant_queue_url_encrypted=order_update_encrypted" >> $GITHUB_OUTPUT
           
@@ -80,11 +80,11 @@ jobs:
       - name: Debug outputs
         id: decrypt-token
         run: |
-          order_queue_encrypted=${{ needs.before_build_terraform.outputs.orders_queue_url_encrypted }}
+          order_queue_encrypted=${{ needs.before_build_terraform.outputs.order_encrypted }}
           order_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$order_queue_encrypted" | base64 --decode))
           echo "ORDER_PLACED_QUEUE_URL=$order_queue_decrypted" >> $GITHUB_ENV
           
-          restaurant_queue_encrypted=${{ needs.before_build_terraform.outputs.restaurant_queue_url_encrypted }}
+          restaurant_queue_encrypted=${{ needs.before_build_terraform.outputs.restaurant_encrypted }}
           restaurant_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$restaurant_queue_encrypted" | base64 --decode))
           echo "UPDATE_ORDER_STATUS_QUEUE_URL=$restaurant_queue_decrypted" >> $GITHUB_ENV
 

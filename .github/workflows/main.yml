@@ -65,8 +65,8 @@ jobs:
 
       - name: Debug Outputs
         run: |
+          echo "order queue url: ${{ steps.terraform_output.outputs.order_placed_queue_url }}"
           echo "order queue url: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
-          echo "restaurant queue url: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}"
   
 
   build_application_image:

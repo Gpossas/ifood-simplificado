@@ -57,55 +57,36 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          terraform output
-          
           order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
-          echo "Order Queue URL: $order_placed_queue_url"   
-          BINARY_ENCRYPTED_SECRET=$(echo -n "$order_placed_queue_url" | openssl enc -aes-256-cbc -pbkdf2 -salt -k "test");
-          ENCRYPTED_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | base64 -w 0);
-          echo "our-secret=$ENCRYPTED_SECRET" >> $GITHUB_OUTPUT
+          orders_placed_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$order_placed_queue_url") | base64 -w0)
+          echo "orders_queue_url_encrypted=orders_placed_encrypted" >> $GITHUB_OUTPUT
           
-          order_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$order_placed_queue_url") | base64 -w0)
-          echo "order_encrypted=$order_encrypted" >> $GITHUB_OUTPUT
+          orders_update_status_queue=$(terraform output -raw orders_microservice_queue_url)
+          order_update_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$orders_update_status_queue") | base64 -w0)
+          echo "restaurant_queue_url_encrypted=order_update_encrypted" >> $GITHUB_OUTPUT
           
         working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
 
-      - name: Debug Outputs
-        run: |
-          echo "order queue url: ${{ steps.terraform_output.outputs.our-secret }}"
-          echo "order queue url: ${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
     outputs:
-      ORDER_PLACED_QUEUE_URL: ${{ steps.terraform_output.outputs.our-secret }}
-      order_encrypted: ${{ steps.terraform_output.outputs.order_encrypted }}
-  
+      order_encrypted: ${{ steps.terraform_output.outputs.orders_queue_url_encrypted }}
+      restaurant_encrypted: ${{ steps.terraform_output.outputs.restaurant_queue_url_encrypted }}
+
 
   build_application_image:
     name: Build application image
     runs-on: ubuntu-latest
     needs: before_build_terraform
     steps:
-      - name: debug env
-        run: env
       - name: Debug outputs
         id: decrypt-token
         run: |
-          ENCRYPTED_SECRET=${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }};
-          BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode);
-          OUR_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test");
-          echo "our-secret=$OUR_SECRET" >> $GITHUB_OUTPUT
+          order_queue_encrypted=${{ needs.before_build_terraform.outputs.orders_queue_url_encrypted }}
+          order_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$order_queue_encrypted" | base64 --decode))
+          echo "ORDER_PLACED_QUEUE_URL=$order_queue_decrypted" >> $GITHUB_ENV
           
-          encrypted_secret=${{ needs.before_build_terraform.outputs.order_encrypted }}
-          order_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$encrypted_secret" | base64 --decode))
-          echo "order_queue_url=$order_decrypted"
-
-
-      - name: Debug outputs 2
-        run: |
-          echo "our-secret=${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
-          echo "our-secret=${{ needs.before_build_terraform.outputs.our-secret }}"
-          echo "our-secret:${{ steps.decrypt-token.outputs.our-secret }}"
-      - name: debug env 2
-        run: env
+          restaurant_queue_encrypted=${{ needs.before_build_terraform.outputs.restaurant_queue_url_encrypted }}
+          restaurant_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$restaurant_queue_encrypted" | base64 --decode))
+          echo "UPDATE_ORDER_STATUS_QUEUE_URL=$restaurant_queue_decrypted" >> $GITHUB_ENV
 
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
@@ -125,7 +106,7 @@ jobs:
       - name: Run Tests and Build jar File For Orders Microservice
         run: cd orders_microservice && mvn clean install
         env:
-          AWS_SQS_ORDER_REQUEST_URL: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}
+          AWS_SQS_ORDER_REQUEST_URL: $ORDER_PLACED_QUEUE_URL
 
       - name: Push image to Docker Hub For Orders Microservice
         run: |
@@ -137,7 +118,7 @@ jobs:
       - name: Run Tests and Build jar File For Restaurant Microservice
         run: cd restaurant_microservice && mvn clean install
         env:
-          AWS_SQS_ORDER_STATUS_UPDATE_URL: ${{ needs.before_build_terraform.outputs.update_order_status_queue_url }}
+          AWS_SQS_ORDER_STATUS_UPDATE_URL: $UPDATE_ORDER_STATUS_QUEUE_URL
 
       - name: Push image to Docker Hub For Restaurant Microservice
         run: |

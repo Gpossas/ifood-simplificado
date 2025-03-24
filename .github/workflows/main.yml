@@ -82,15 +82,18 @@ jobs:
       - name: debug env
         run: env
       - name: Debug outputs
+        id: decrypt-token
         run: |
           ENCRYPTED_SECRET=${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }};
           BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode);
           OUR_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test");
           echo "our-secret=$OUR_SECRET" >> $GITHUB_OUTPUT
+
       - name: Debug outputs 2
         run: |
           echo "our-secret=${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
           echo "our-secret=${{ needs.before_build_terraform.outputs.our-secret }}"
+          echo "our-secret:${{ steps.decrypt-token.outputs.our-secret }}"
       - name: debug env 2
         run: env
 

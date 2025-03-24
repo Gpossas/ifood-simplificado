@@ -20,8 +20,6 @@ jobs:
   before_build_terraform:
     name: Init terraform
     runs-on: ubuntu-latest
-    outputs:
-      ORDER_PLACED_QUEUE_URL: ${{ steps.terraform_output.outputs.ORDER_PLACED_QUEUE_URL }}
     steps:
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
@@ -62,15 +60,18 @@ jobs:
           order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
           echo "Order Queue URL: $order_placed_queue_url"
           
-          ENCRYPTED_SECRET=$(echo -n "$order_placed_queue_url" | openssl enc -aes-256-cbc -pbkdf2 -salt -k "test" | base64)
+          BINARY_ENCRYPTED_SECRET=$(echo -n "$order_placed_queue_url" | openssl enc -aes-256-cbc -pbkdf2 -salt -k "test");
+          ENCRYPTED_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | base64 -w 0);
+          echo "our-secret=$ENCRYPTED_SECRET" >> $GITHUB_OUTPUT
           
-          echo "ORDER_PLACED_QUEUE_URL=$ENCRYPTED_SECRET" >> "$GITHUB_OUTPUT"
         working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
 
       - name: Debug Outputs
         run: |
           echo "order queue url: ${{ steps.terraform_output.outputs.order_placed_queue_url }}"
           echo "order queue url: ${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
+    outputs:
+      ORDER_PLACED_QUEUE_URL: ${{ steps.terraform_output.outputs.our-secret }}
   
 
   build_application_image:
@@ -82,13 +83,10 @@ jobs:
         run: env
       - name: Debug outputs
         run: |
-          ENCRYPTED_SECRET="${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
-
-          BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode)
-          
-          DECRYPTED_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test")
-          
-          echo "Decrypted Order Queue URL: $DECRYPTED_SECRET"
+          ENCRYPTED_SECRET=${{ needs.github-secrets.outputs.ORDER_PLACED_QUEUE_URL   }};
+          BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode);
+          OUR_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "${{ secrets.ENCRYPTION_PASSWORD }}");
+          echo "our-secret=$OUR_SECRET" >> $GITHUB_OUTPUT
 
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4

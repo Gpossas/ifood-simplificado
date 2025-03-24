@@ -78,6 +78,9 @@ jobs:
         run: |
           echo "order queue url: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
 
+      - name: debug env
+        run: env
+
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
 

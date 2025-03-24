@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Script to create resources not dependent on the application image
+# Script to create resources with multiple environments
 
 set -e  # Exit on first error
 
-RESOURCES=("dynamodb" "vpc" "security_group" "load_balancer" "ecs" "api_gateway")
+RESOURCES=("sqs" "dynamodb" "vpc" "security_group" "load_balancer" "ecs" "api_gateway")
 
 cd "$(dirname "$0")/../environments/$ENV/"
 

@@ -17,76 +17,11 @@ on:
         required: true
 
 jobs:
-  before_build_terraform:
-    name: Init terraform
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone code from GitHub repository inside GitHub actions runner
-        uses: actions/checkout@v4
-
-      - name: Authenticate to AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.aws_assume_role_arn }}
-          aws-region: ${{ secrets.aws_region }}
-          mask-aws-account-id: 'no'
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.11.0
-          terraform_wrapper: false
-
-      - name: Terraform Init
-        run: bash terraform/scripts/terraform_init.sh
-        env:
-          ENV: ${{ inputs.environment }}
-          AWS_S3_TERRAFORM_BACKEND: ${{ secrets.aws_s3_terraform_backend }}
-          AWS_REGION: ${{ secrets.aws_region }}
-
-      - name: Terraform Validate
-        run: bash terraform/scripts/terraform_validate.sh
-        env:
-          ENV: ${{ inputs.environment }}
-
-      - name: Terraform Apply
-        run: bash terraform/scripts/terraform_apply_before_application_image_build.sh
-        env:
-          ENV: ${{ inputs.environment }}
-
-      - name: Terraform Outputs
-        id: terraform_output
-        working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
-        run: |
-          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
-          orders_placed_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$order_placed_queue_url") | base64 -w0)
-          echo "orders_queue_url_encrypted=$orders_placed_encrypted" >> $GITHUB_OUTPUT
-          
-          orders_update_status_queue=$(terraform output -raw restaurant_microservice_queue_url)
-          order_update_encrypted=$(gpg --symmetric --batch --passphrase "SECRET" --output - <(echo "$orders_update_status_queue") | base64 -w0)
-          echo "restaurant_queue_url_encrypted=$order_update_encrypted" >> $GITHUB_OUTPUT
-
-    outputs:
-      order_encrypted: ${{ steps.terraform_output.outputs.orders_queue_url_encrypted }}
-      restaurant_encrypted: ${{ steps.terraform_output.outputs.restaurant_queue_url_encrypted }}
-
-
   build_application_image:
     name: Build application image
     runs-on: ubuntu-latest
     needs: before_build_terraform
     steps:
-      - name: Decrypt SQS URLs
-        id: decrypt-token
-        run: |
-          order_queue_encrypted=${{ needs.before_build_terraform.outputs.order_encrypted }}
-          order_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$order_queue_encrypted" | base64 --decode))
-          echo "ORDER_PLACED_QUEUE_URL=$order_queue_decrypted" >> $GITHUB_ENV
-          
-          restaurant_queue_encrypted=${{ needs.before_build_terraform.outputs.restaurant_encrypted }}
-          restaurant_queue_decrypted=$(gpg --decrypt --quiet --batch --passphrase "SECRET" --output - <(echo "$restaurant_queue_encrypted" | base64 --decode))
-          echo "UPDATE_ORDER_STATUS_QUEUE_URL=$restaurant_queue_decrypted" >> $GITHUB_ENV
-
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
 
@@ -96,16 +31,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Authenticate to AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.aws_assume_role_arn }}
-          aws-region: ${{ secrets.aws_region }}
-
       - name: Run Tests and Build jar File For Orders Microservice
         run: cd orders_microservice && mvn clean install
-        env:
-          AWS_SQS_ORDER_REQUEST_URL: $ORDER_PLACED_QUEUE_URL
 
       - name: Push image to Docker Hub For Orders Microservice
         run: |
@@ -116,8 +43,6 @@ jobs:
 
       - name: Run Tests and Build jar File For Restaurant Microservice
         run: cd restaurant_microservice && mvn clean install
-        env:
-          AWS_SQS_ORDER_STATUS_UPDATE_URL: $UPDATE_ORDER_STATUS_QUEUE_URL
 
       - name: Push image to Docker Hub For Restaurant Microservice
         run: |
@@ -126,8 +51,8 @@ jobs:
           docker build --platform linux/arm64 -t ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest .
           docker push ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE }}:latest
 
-  after_build_terraform:
-    name: Build Terraform resources after build application image
+  build_aws_terraform:
+    name: Build AWS Infrastructure With Terraform
     needs: build_application_image
     runs-on: ubuntu-latest
     steps:
@@ -161,7 +86,7 @@ jobs:
           ENV: ${{ inputs.environment }}
 
       - name: Terraform Apply
-        run: bash terraform/scripts/terraform_apply_after_application_image_build.sh
+        run: bash terraform/scripts/terraform_apply.sh
         env:
           ENV: ${{ inputs.environment }}
           ORDERS_IMAGE: ${{ vars.DOCKER_USERNAME }}/${{ vars.DOCKER_IMAGE_NAME_ORDERS_MICROSERVICE }}:latest

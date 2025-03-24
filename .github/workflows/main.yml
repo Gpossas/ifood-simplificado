@@ -32,7 +32,6 @@ jobs:
           role-to-assume: ${{ secrets.aws_assume_role_arn }}
           aws-region: ${{ secrets.aws_region }}
           mask-aws-account-id: 'no'
-          mask-aws-region: 'no'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -62,7 +61,11 @@ jobs:
         run: |
           order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
           echo "Order Queue URL: $order_placed_queue_url"
-          echo "order_placed_queue_url=$order_placed_queue_url" >> "$GITHUB_OUTPUT"
+          
+          BINARY_ENCRYPTED_SECRET=$(echo -n "order_placed_queue_url" | openssl enc -aes-256-cbc -pbkdf2 -salt -k "test")
+          ENCRYPTED_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | base64)
+          
+          echo "order_placed_queue_url=ENCRYPTED_SECRET" >> "$GITHUB_OUTPUT"
         working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
 
       - name: Debug Outputs
@@ -78,7 +81,11 @@ jobs:
     steps:
       - name: Debug outputs
         run: |
-          echo "order queue url: ${{ needs.before_build_terraform.outputs.order_placed_queue_url }}"
+          ENCRYPTED_SECRET=${{ needs.before_build_terraform.outputs.order_placed_queue_url }}
+          BINARY_ENCRYPTED_SECRET=$(echo -n "$ENCRYPTED_SECRET" | base64 --decode)
+          OUR_SECRET=$(echo -n "$BINARY_ENCRYPTED_SECRET" | openssl enc -aes-256-cbc -pbkdf2 -d -salt -k "test");
+
+          echo "order queue url: $OUR_SECRET"
 
       - name: debug env
         run: env

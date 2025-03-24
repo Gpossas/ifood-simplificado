@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.guipossas.restaurant.dtos.UpdateOrderStatusDto;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
@@ -13,6 +14,12 @@ public class UpdateOrderStatusRequest
 {
     @Value("${aws.sqs.order_status_update.url}")
     private String queueUrl;
+
+    @PostConstruct
+    public void init()
+    {
+        System.out.println("Queue URL: " + queueUrl);
+    }
 
     public SendMessageRequest createMessageRequest(UpdateOrderStatusDto orderStatusDto)
     {

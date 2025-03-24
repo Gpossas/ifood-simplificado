@@ -21,8 +21,8 @@ jobs:
     name: Init terraform
     runs-on: ubuntu-latest
     outputs:
-      order_placed_queue_url: ${{ steps.terraform_output.outputs.order_placed_queue_url }}
-      update_order_status_queue_url: ${{ steps.terraform_output.outputs.update_order_status_queue_url }}
+      order_placed_queue_url: ${{ env.order_placed_queue_url }}
+      update_order_status_queue_url: ${{ env.update_order_status_queue_url }}
     steps:
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4
@@ -58,10 +58,14 @@ jobs:
       - name: Terraform Outputs
         id: terraform_output
         run: |
-          terraform output -json
-          ls -la
-          echo "order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)" >> $GITHUB_OUTPUT
-          echo "update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_url)" >> $GITHUB_OUTPUT
+          order_placed_queue_url=$(terraform output -raw orders_microservice_queue_url)
+          update_order_status_queue_url=$(terraform output -raw restaurant_microservice_queue_url)
+  
+          echo "Order Queue URL: $order_placed_queue_url"
+          echo "Restaurant Queue URL: $update_order_status_queue_url"
+  
+          echo "order_placed_queue_url=$order_placed_queue_url" >> $GITHUB_ENV
+          echo "update_order_status_queue_url=$update_order_status_queue_url" >> $GITHUB_ENV
         working-directory: ./terraform/environments/${{ inputs.environment }}/sqs
 
       - name: Debug Outputs

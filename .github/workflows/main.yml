@@ -91,6 +91,8 @@ jobs:
         run: |
           echo "our-secret=${{ needs.before_build_terraform.outputs.ORDER_PLACED_QUEUE_URL }}"
           echo "our-secret=${{ needs.before_build_terraform.outputs.our-secret }}"
+      - name: debug env 2
+        run: env
 
       - name: Clone code from GitHub repository inside GitHub actions runner
         uses: actions/checkout@v4

@@ -15,12 +15,6 @@ public class UpdateOrderStatusRequest
     @Value("${aws.sqs.order_status_update.url}")
     private String queueUrl;
 
-    @PostConstruct
-    public void init()
-    {
-        System.out.println("Queue URL: " + queueUrl);
-    }
-
     public SendMessageRequest createMessageRequest(UpdateOrderStatusDto orderStatusDto)
     {
         try

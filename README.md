@@ -27,6 +27,14 @@ O projeto foi construido com o objetivo de estabalecer uma base sólida dos fund
 - Adicionar *DOCKER_IMAGE_NAME_RESTAURANT_MICROSERVICE* com o nome para a imagem do microsserviço de restaurante
 - Adicionar *DOCKER_USERNAME* com seu usuário do Docker Hub
 
+#### Docker
+- Utilize o arquivo *docker.yml* para executar o mongodb no microsserviço de restaurante
+- O mongoDB será executado na porta 27017
+```bash
+$ cd restaurant_microservice/docker
+$ docker compose up -d
+```
+
 ### Executando microsserviços
 
 ```bash
@@ -37,26 +45,61 @@ $ git clone https://github.com/Gpossas/ifood-simplificado.git
 $ cd ifood-simplificado
 ```
 
-- O microserviço de pedidos(orders_microservice) precisa de uma fila no SQS e DynamoDB criados
-- O microserviço de restaurantes(restaurant_microservice) precisa de uma fila no SQS e container com mongodb executando
+#### - Executando a aplicação em local host
+
+Caso você não queira criar toda a infraestutura e executar o projeto em local host, você pode criar apenas o dynamoDB e as filas SQS.
+
+##### Criando as filas 
+
 ```bash
-# Crie as filas
-$ cd terraform/environments/dev/sqs/
-$ terraform init
-$ terrafrm apply -auto-approve
+# Entre na pasta do terrafom com as filas
+$ cd terraform/environments/dev/sqs
 
-# Crie o DynamoDB
-$ cd ../dynamodb/
-$ terraform init
-$ terrafrm apply -auto-approve
-
-# Execute o mongoDB no docker compose
-$ cd ../../../../restaurant_microservice/docker/
-$ docker compose up -d
+# Inicie o backend do terraform
+$ terraform init \
+  -backend-config="bucket=nome-do-seu-bucket-s3" \
+  -backend-config="key=ifood-simplificado/dev/sqs" \
+  -backend-config="region=sa-east-1"
+  
+# Crie os recursos utilizando terraform
+$ terraform apply -auto-approve
 ```
+
+Após o apply você irá receberá outputs das filas.
+- Passe uma variável de ambiente chamada *AWS_SQS_ORDER_REQUEST_URL* para *orders_microservice* com o valor do output *orders_microservice_queue_url*
+- Passe uma variável de ambiente chamada *AWS_SQS_ORDER_STATUS_UPDATE_URL* para *restaurant_microservice* com o valor do output *restaurant_microservice_queue_url*
+
+##### Criando DynamoDB
+
+```bash
+# Entre na pasta do terrafom com o dynamoDB
+$ cd ../dynamodb
+
+# Inicie o backend do terraform
+$ terraform init \
+  -backend-config="bucket=nome-do-seu-bucket-s3" \
+  -backend-config="key=ifood-simplificado/dev/dynamodb" \
+  -backend-config="region=sa-east-1"
+  
+# Crie os recursos utilizando terraform
+$ terraform apply -auto-approve
+```
+
+Obs: utilize esse comando para destruir os recursos alocados do DynamoDB
+```bash
+$ terraform destroy -auto-approve
+```
+
+#### - Executando a aplicação na internet
+
+1. Na aba de actions execute o workflow Development environment CI/CD para criar a infraestrutura completa
+2. Entre no console da AWS e utilize a URL do API Gateway em “stage”
+
+Obs: utilize o workflow *Destroy all terraform resources* quando terminar
 
 ## Melhorias
 
-- Implementar o microsserviço de restaurante combase de dados DocumentDB
+- Alterar a base de dados para DocumentDB do microsserviço de restaurante
 - Foi utilizado o Scheduled do Spring Boot para limpar pedidos não respondidos a tempo. Essa solução irá ativar em cada instância ECS, ou seja, cada instância irá fazer uma chamada para a base de dados ao mesmo tempo, isso significa que apenas uma delas irá fazer algo e as outras vão apenas gastar dinheiro no DynamoDB. Seria mais eficiente um Batch job a cada x minutos
 - Utilizar S3 para salvar imagens 
+- Atualmente o projeto força uma resposta do microsserviço de restaurante de aceitar um pedido. Essencialmente deveria ter um microsserviço de notificação para atuar como uma ponte entre os microsserviços e entre o cliente.
